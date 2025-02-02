@@ -1,4 +1,4 @@
-# Face Recognition Attendance System
+## Face Recognition Attendance System
 
 A robust attendance management system using facial recognition technology. Built with Flask and OpenCV, this system provides a secure and efficient way to track attendance using facial recognition.
 
