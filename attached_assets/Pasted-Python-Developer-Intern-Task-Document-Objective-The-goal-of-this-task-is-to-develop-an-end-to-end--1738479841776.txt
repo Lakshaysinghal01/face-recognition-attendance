@@ -1,0 +1,49 @@
+Python Developer Intern Task Document
+Objective
+The goal of this task is to develop an end-to-end Face Recognition System for attendance
+management. This task will evaluate your ability to design, build, and deploy scalable and
+production-ready Python applications that utilize face recognition functionalities, while
+adhering to best coding practices.
+
+Project Requirements
+1. Frameworks & Tools
+To complete this task, you are expected to use the following:
+● Python: For scripting and backend development.
+● OpenCV or face_recognition: For implementing face detection and recognition.
+● SQLite/PostgreSQL: For storing user and attendance data.
+● Flask/FastAPI: For building a lightweight API to interface with the application.
+● Cloud Deployment: Use AWS, Google Cloud, or Azure to deploy your solution.
+2. Restrictions
+● Pre-trained Models: You may use publicly available face recognition models but
+must document their source and justification for us
+● No External UI Libraries: Build a basic user interface with Flask or FastAPI
+templates; avoid using external libraries for the frontend.
+3. Deliverable Format
+● Submit the project as a zipped folder containing all necessary file
+● Exclude __pycache__ and virtual environment folders to minimize the file siz
+● Include a README.md file with setup instruction
+
+Project Goals
+
+1. Key Functionalities
+● Face Registration:
+Allow users to upload their photos for registration and store the facial embeddings
+in a database.
+● Face Recognition:
+Implement a real-time or image-based recognition system to identify users and
+mark attendance.
+● Attendance Management:
+Maintain logs of attendance records in a database, including user details and
+timestamps.
+● Report Generation:
+Allow exporting attendance logs as CSV or PDF file
+2. Scalability
+● Optimize the system to handle at least 500 users with minimal latency.
+● Implement caching mechanisms (e.g., Redis) for faster recognition.
+3. Cloud Deployment
+● Deploy the application on a cloud platform, ensuring it is accessible via a public API
+or web interface.
+● Use scalable storage solutions for handling user data.
+4. Security
+● Ensure uploaded images are validated for size and format.
+● Implement basic security measures like API authentication and input sanitization.
