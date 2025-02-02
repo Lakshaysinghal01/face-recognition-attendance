@@ -1,0 +1,71 @@
+/* Custom styles on top of Bootstrap dark theme */
+
+/* Webcam container styling */
+#webcam-container {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: var(--bs-dark);
+}
+
+#webcam, #preview {
+    width: 100%;
+    max-width: 640px;
+    border-radius: 8px;
+}
+
+/* Card enhancements */
+.card {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Status badges */
+.badge {
+    font-size: 0.9em;
+    padding: 0.5em 0.8em;
+}
+
+/* Table enhancements */
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Alert customization */
+.alert {
+    border: none;
+    border-radius: 8px;
+}
+
+/* Icon alignments */
+.feather {
+    width: 18px;
+    height: 18px;
+    vertical-align: text-bottom;
+    margin-right: 5px;
+}
+
+/* Button hover effects */
+.btn {
+    transition: transform 0.2s;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 1rem;
+    }
+}

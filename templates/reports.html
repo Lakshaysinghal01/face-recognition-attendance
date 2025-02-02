@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <!-- Report Generation Panel -->
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i data-feather="file-text"></i> Generate Report</h4>
+            </div>
+            <div class="card-body">
+                <form id="report-form" method="POST" action="{{ url_for('download_report') }}">
+                    <div class="mb-3">
+                        <label for="report-type" class="form-label">Report Type</label>
+                        <select class="form-select" id="report-type" name="report_type">
+                            <option value="daily">Daily Report</option>
+                            <option value="weekly">Weekly Report</option>
+                            <option value="monthly">Monthly Report</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="start-date" class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="start-date" name="start_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="end-date" class="form-label">End Date</label>
+                        <input type="date" class="form-control" id="end-date" name="end_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="format" class="form-label">Format</label>
+                        <select class="form-select" id="format" name="format">
+                            <option value="csv">CSV</option>
+                            <option value="pdf">PDF</option>
+                        </select>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i data-feather="download"></i> Download Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendance Overview -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i data-feather="bar-chart-2"></i> Attendance Overview</h4>
+            </div>
+            <div class="card-body">
+                <!-- Statistics Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card bg-success text-white">
+                            <div class="card-body">
+                                <h6 class="card-title">Present Rate</h6>
+                                <h2>{{ stats.present_rate }}%</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-warning text-dark">
+                            <div class="card-body">
+                                <h6 class="card-title">Total Users</h6>
+                                <h2>{{ stats.total_users }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-info text-white">
+                            <div class="card-body">
+                                <h6 class="card-title">Today's Attendance</h6>
+                                <h2>{{ stats.today_attendance }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Attendance Table -->
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>User</th>
+                                <th>Status</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in recent_records %}
+                            <tr>
+                                <td>{{ record.timestamp.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ record.user.username }}</td>
+                                <td>
+                                    <span class="badge bg-{{ record.status }}">
+                                        {{ record.status.title() }}
+                                    </span>
+                                </td>
+                                <td>{{ record.timestamp.strftime('%H:%M:%S') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <nav aria-label="Page navigation" class="mt-3">
+                    <ul class="pagination justify-content-center">
+                        {% if pagination.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('reports', page=pagination.prev_num) }}">Previous</a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for page in pagination.iter_pages() %}
+                            {% if page %}
+                                <li class="page-item {% if page == pagination.page %}active{% endif %}">
+                                    <a class="page-link" href="{{ url_for('reports', page=page) }}">{{ page }}</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if pagination.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('reports', page=pagination.next_num) }}">Next</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Date Range Validation Modal -->
+<div class="modal fade" id="errorModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Invalid Date Range</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Please select a valid date range. End date must be after start date.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('report-form');
+    const startDate = document.getElementById('start-date');
+    const endDate = document.getElementById('end-date');
+    const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const start = new Date(startDate.value);
+        const end = new Date(endDate.value);
+        
+        if (end < start) {
+            errorModal.show();
+            return;
+        }
+        
+        this.submit();
+    });
+
+    // Set default dates
+    const today = new Date();
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+    
+    endDate.value = today.toISOString().split('T')[0];
+    startDate.value = thirtyDaysAgo.toISOString().split('T')[0];
+});
+</script>
+{% endblock %}
