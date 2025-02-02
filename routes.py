@@ -1,13 +1,14 @@
 import os
 from datetime import datetime
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
 from app import app, db, login_manager
 from models import User, Attendance
 from forms import LoginForm, RegistrationForm
-from face_utils import process_image_for_face_recognition
+from face_utils import process_image_for_face_recognition, compare_faces, detect_face_from_frame
 import logging
+import numpy as np
 
 @login_manager.user_loader
 def load_user(id):
@@ -122,6 +123,75 @@ def view_history():
 
     return render_template('view_history.html', 
                          attendance_records=attendance_records)
+
+@app.route('/api/attendance-status')
+@login_required
+def get_attendance_status():
+    try:
+        today = datetime.utcnow().date()
+        status = Attendance.query.filter_by(user_id=current_user.id)\
+            .filter(db.func.date(Attendance.timestamp) == today)\
+            .first()
+
+        return jsonify({
+            'status': status.status if status else None
+        })
+    except Exception as e:
+        logging.error(f"Error getting attendance status: {str(e)}")
+        return jsonify({'error': 'Failed to get attendance status'}), 500
+
+@app.route('/api/mark-attendance', methods=['POST'])
+@login_required
+def mark_attendance():
+    try:
+        if 'image' not in request.files:
+            return jsonify({'success': False, 'message': 'No image provided'}), 400
+
+        image_file = request.files['image']
+        if not image_file:
+            return jsonify({'success': False, 'message': 'Invalid image'}), 400
+
+        # Save temporary image
+        temp_path = os.path.join(app.config['UPLOAD_FOLDER'], 'temp_capture.jpg')
+        image_file.save(temp_path)
+
+        # Process captured image
+        face_encoding = process_image_for_face_recognition(temp_path)
+        if face_encoding is None:
+            os.remove(temp_path)
+            return jsonify({'success': False, 'message': 'No face detected in image'}), 400
+
+        # Compare with stored encoding
+        if not compare_faces(current_user.face_encoding, face_encoding):
+            os.remove(temp_path)
+            return jsonify({'success': False, 'message': 'Face does not match'}), 400
+
+        # Clean up temporary file
+        os.remove(temp_path)
+
+        # Mark attendance
+        now = datetime.utcnow()
+        status = 'present' if now.hour < 9 else 'late'
+
+        attendance = Attendance(
+            user_id=current_user.id,
+            timestamp=now,
+            status=status
+        )
+        db.session.add(attendance)
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': f'Attendance marked as {status}'
+        })
+
+    except Exception as e:
+        logging.error(f"Error marking attendance: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': 'Failed to mark attendance'
+        }), 500
 
 # Error handlers
 @app.errorhandler(404)

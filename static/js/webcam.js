@@ -16,46 +16,68 @@ async function initWebcam() {
             }
         });
         video.srcObject = stream;
+        video.style.display = 'block';
+        canvas.style.display = 'none';
+        captureBtn.style.display = 'block';
+        retakeBtn.style.display = 'none';
     } catch (err) {
         showError('Failed to access webcam: ' + err.message);
     }
 }
 
 // Capture photo
-function capturePhoto() {
-    canvas.style.display = 'block';
-    video.style.display = 'none';
-    captureBtn.style.display = 'none';
-    retakeBtn.style.display = 'block';
-    
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    canvas.getContext('2d').drawImage(video, 0, 0);
-    
-    // Convert to blob and send to server
-    canvas.toBlob(function(blob) {
+async function capturePhoto() {
+    try {
+        canvas.style.display = 'block';
+        video.style.display = 'none';
+        captureBtn.style.display = 'none';
+        retakeBtn.style.display = 'block';
+
+        // Set canvas dimensions to match video
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        // Draw video frame to canvas
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0);
+
+        // Convert canvas to blob
+        const blob = await new Promise(resolve => {
+            canvas.toBlob(resolve, 'image/jpeg', 0.8);
+        });
+
+        if (!blob) {
+            throw new Error('Failed to create image blob');
+        }
+
+        // Create form data
         const formData = new FormData();
         formData.append('image', blob, 'capture.jpg');
-        
-        fetch('/api/mark-attendance', {
+
+        // Show processing status
+        showInfo('Processing...');
+
+        // Send to server
+        const response = await fetch('/api/mark-attendance', {
             method: 'POST',
             body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showSuccess('Attendance marked successfully!');
-                setTimeout(() => {
-                    window.location.reload();
-                }, 2000);
-            } else {
-                showError(data.message || 'Failed to mark attendance');
-            }
-        })
-        .catch(error => {
-            showError('Error: ' + error.message);
         });
-    }, 'image/jpeg', 0.8);
+
+        const data = await response.json();
+
+        if (data.success) {
+            showSuccess(data.message);
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        } else {
+            showError(data.message || 'Failed to mark attendance');
+            retakePhoto();
+        }
+    } catch (error) {
+        showError('Error: ' + error.message);
+        retakePhoto();
+    }
 }
 
 // Retake photo
@@ -80,6 +102,15 @@ function showError(message) {
     statusContainer.innerHTML = `
         <div class="alert alert-danger">
             <i data-feather="alert-circle"></i> ${message}
+        </div>
+    `;
+    feather.replace();
+}
+
+function showInfo(message) {
+    statusContainer.innerHTML = `
+        <div class="alert alert-info">
+            <i data-feather="info"></i> ${message}
         </div>
     `;
     feather.replace();
