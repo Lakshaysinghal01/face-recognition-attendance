@@ -67,6 +67,8 @@ DATABASE_URL=postgresql://username:password@localhost:5432/attendance_db
 # The tables will be automatically created when you run the application
 python main.py
 ```
+## Live Demo
+Access the live application: [Face Recognition Attendance System](https://c45f024d-1972-414f-86c2-a77fd6e1ba7a-00-27rhvwuo8n4by.riker.replit.dev/)
 
 ## Project Structure
 
