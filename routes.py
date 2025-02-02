@@ -112,6 +112,17 @@ def attendance():
         
     return render_template('attendance.html', today_status=today_status)
 
+@app.route('/view_history')
+@login_required
+def view_history():
+    # Get all attendance records for the current user
+    attendance_records = Attendance.query.filter_by(user_id=current_user.id)\
+        .order_by(Attendance.timestamp.desc())\
+        .paginate(page=request.args.get('page', 1, type=int), per_page=10)
+
+    return render_template('view_history.html', 
+                         attendance_records=attendance_records)
+
 # Error handlers
 @app.errorhandler(404)
 def not_found_error(error):
