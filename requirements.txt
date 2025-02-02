@@ -1,0 +1,28 @@
+# Web Framework
+Flask==3.0.0
+Flask-SQLAlchemy==3.1.1
+Flask-Login==0.6.3
+Werkzeug==3.0.1
+
+# Database
+SQLAlchemy==2.0.23
+
+# Computer Vision & Face Recognition
+opencv-python==4.8.1.78
+face-recognition==1.3.0
+face-recognition-models==0.3.0
+dlib==19.24.2
+numpy==1.26.2
+
+# Image Processing
+Pillow==10.1.0
+
+# Date/Time Handling
+python-dateutil==2.8.2
+
+# Development & Testing
+pytest==7.4.3
+python-dotenv==1.0.0
+
+# Security
+bcrypt==4.0.1
