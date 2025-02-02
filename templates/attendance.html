@@ -29,6 +29,22 @@
                                 <i data-feather="info"></i> Please position your face in the camera
                             </div>
                         </div>
+                        <!-- Alternative Photo Upload -->
+                        <div class="mt-4 border-top pt-3">
+                            <h5>Alternative: Upload Photo</h5>
+                            <form id="photo-upload-form" method="POST" enctype="multipart/form-data" action="{{ url_for('mark_attendance') }}">
+                                <div class="mb-3">
+                                    <label for="face_photo" class="form-label">Face Photo</label>
+                                    <input type="file" class="form-control" id="face_photo" name="image" accept="image/*" required>
+                                    <small class="text-muted">Please upload a clear front-facing photo</small>
+                                </div>
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-outline-primary">
+                                        <i data-feather="upload"></i> Upload Photo
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -75,4 +91,49 @@
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/webcam.js') }}"></script>
 <script src="{{ url_for('static', filename='js/attendance.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const uploadForm = document.getElementById('photo-upload-form');
+    uploadForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(uploadForm);
+
+        try {
+            const response = await fetch('/api/mark-attendance', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            const statusContainer = document.getElementById('status-container');
+
+            if (data.success) {
+                statusContainer.innerHTML = `
+                    <div class="alert alert-success">
+                        <i data-feather="check-circle"></i> ${data.message}
+                    </div>
+                `;
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            } else {
+                statusContainer.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i data-feather="alert-circle"></i> ${data.message}
+                    </div>
+                `;
+            }
+            feather.replace();
+        } catch (error) {
+            console.error('Error:', error);
+            statusContainer.innerHTML = `
+                <div class="alert alert-danger">
+                    <i data-feather="alert-circle"></i> Failed to upload photo
+                </div>
+            `;
+            feather.replace();
+        }
+    });
+});
+</script>
 {% endblock %}
