@@ -47,12 +47,14 @@ Before running this project, make sure you have:
 ## Installation
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd face-recognition-attendance
 ```
 
 2. Set up environment variables:
+
 ```bash
 # Required environment variables
 FLASK_SECRET_KEY=your_secret_key
@@ -60,6 +62,7 @@ DATABASE_URL=postgresql://username:password@localhost:5432/attendance_db
 ```
 
 3. Create and initialize the database:
+
 ```bash
 # The tables will be automatically created when you run the application
 python main.py
@@ -74,7 +77,7 @@ python main.py
 ├── forms.py            # Form definitions
 ├── models.py           # Database models
 ├── routes.py           # Route handlers
-├── static/            
+├── static/
 │   ├── css/           # Stylesheets
 │   └── js/            # JavaScript files
 ├── templates/          # HTML templates
@@ -84,12 +87,14 @@ python main.py
 ## Usage Guide
 
 ### Registration
+
 1. Navigate to the registration page
 2. Fill in your details (username, email, password)
 3. Upload a clear front-facing photo for face recognition
 4. Submit the form
 
 ### Marking Attendance
+
 1. Login to your account
 2. Go to "Mark Attendance"
 3. Choose either:
@@ -99,6 +104,7 @@ python main.py
 5. Attendance status (Present/Late) is automatically determined based on time
 
 ### Viewing Attendance
+
 1. Check your dashboard for attendance statistics
 2. View detailed attendance history
 3. See current day's attendance status
@@ -106,6 +112,7 @@ python main.py
 ## Database Schema
 
 ### Users Table
+
 - id: Primary Key
 - username: Unique username
 - email: User's email
@@ -115,6 +122,7 @@ python main.py
 - created_at: Account creation timestamp
 
 ### Attendance Table
+
 - id: Primary Key
 - user_id: Foreign Key (Users)
 - timestamp: Attendance time
@@ -123,15 +131,18 @@ python main.py
 ## API Endpoints
 
 ### Authentication Endpoints
+
 - POST `/login`: User login
 - POST `/register`: User registration
 - GET `/logout`: User logout
 
 ### Attendance Endpoints
+
 - POST `/api/mark-attendance`: Mark attendance with face photo
 - GET `/api/attendance-status`: Get current day's attendance status
 
 ### View Endpoints
+
 - GET `/`: Home page
 - GET `/dashboard`: User dashboard
 - GET `/attendance`: Mark attendance page
@@ -150,11 +161,13 @@ python main.py
 ## Running the Application
 
 1. Start the server:
+
 ```bash
 python main.py
 ```
 
 2. Access the application at:
+
 ```
 http://localhost:5000
 ```
@@ -162,6 +175,7 @@ http://localhost:5000
 ## Development
 
 The application runs in debug mode by default, providing:
+
 - Detailed error messages
 - Auto-reload on code changes
 - Debug toolbar
@@ -177,3 +191,37 @@ The application runs in debug mode by default, providing:
 ## License
 
 This project is licensed under the MIT License.
+
+# Environment variables
+
+.env
+
+# Python
+
+**pycache**/
+_.py[cod]
+_.so
+
+# Virtual environment
+
+venv/
+env/
+
+# Uploads directory (user photos)
+
+uploads/\*
+!uploads/.gitkeep
+
+# Database
+
+_.db
+_.sqlite3
+
+# IDE
+
+.vscode/
+.idea/
+
+# System files
+
+.DS_Store
